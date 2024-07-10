@@ -1,42 +1,24 @@
-FROM node:20-alpine AS base
-
-FROM base AS deps
-
-RUN apk add --no-cache libc6-compat
+FROM node:20.11-alpine as builder
 WORKDIR /app
 
-COPY package.json ./
-
-RUN npm update && npm install
-
-# If you want yarn update and  install uncomment the bellow
-
-# RUN yarn install &&  yarn upgrade
-
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+COPY package.json package-lock.json ./
+RUN npm ci
+RUN npm i --save-dev @types/react-gtm-module
 COPY . .
 
-RUN npm run build
+ENV NEXT_SHARP_PATH=/app/node_modules/sharp
 
-FROM base AS runner
+RUN NODE_ENV=production npm run prod-tractor && npm prune --production
+
+FROM node:20.11-alpine as runner
 WORKDIR /app
 
 ENV NODE_ENV production
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
+ENV NEXT_SHARP_PATH=/app/node_modules/sharp
+COPY --from=builder /app/node_modules/sharp /app/node_modules/sharp
 COPY --from=builder /app/public ./public
-
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 EXPOSE 3000
 
 ENV PORT 3000
