@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
-RUN npm i --save-dev @types/react-gtm-module
+RUN npm i --save-dev sharp
 COPY . .
 
 ENV NEXT_SHARP_PATH=/app/node_modules/sharp
