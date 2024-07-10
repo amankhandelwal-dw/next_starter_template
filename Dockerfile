@@ -8,7 +8,7 @@ COPY . .
 
 ENV NEXT_SHARP_PATH=/app/node_modules/sharp
 
-RUN NODE_ENV=production npm run prod-tractor && npm prune --production
+RUN NODE_ENV=production npm run build && npm prune --production
 
 FROM node:20.11-alpine as runner
 WORKDIR /app
