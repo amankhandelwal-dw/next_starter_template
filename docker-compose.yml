@@ -1,23 +1,43 @@
-version: '3.8'
+# version: '3.8'
+
+# services:
+#   frontend:
+#     image: 590183844200.dkr.ecr.us-east-1.amazonaws.com/frontend:${VERSION}
+#     environment:
+#       - NODE_ENV=production
+#       - PORT=3000
+#     ports:
+#       - "3000:3000"
+#     networks:
+#       - frontend-network
+#     deploy:
+#       replicas: 1
+#       update_config:
+#         parallelism: 2
+#         delay: 10s
+#       restart_policy:
+#         condition: on-failure
+
+# networks:
+#   frontend-network:
+#     driver: overlay
+
+version: "3.8"
 
 services:
   frontend:
     image: 590183844200.dkr.ecr.us-east-1.amazonaws.com/frontend:${VERSION}
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-    ports:
-      - "3000:3000"
-    networks:
-      - frontend-network
     deploy:
       replicas: 1
-      update_config:
-        parallelism: 2
-        delay: 10s
       restart_policy:
         condition: on-failure
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    networks:
+      - webnet
 
 networks:
-  frontend-network:
-    driver: overlay
+  webnet:
